@@ -13,15 +13,19 @@ import (
 	"github.com/gmallard/stompngo"
 )
 
-type MockStompConnection struct{}
-
 type MockStompMessage struct {
-	order int
+	order   int
 	headers stompngo.Headers
 	message string
 }
 
-var messagesSent = make(chan MockStompMessage, 1000)
+type MockStompConnection struct {
+	messagesSent chan MockStompMessage
+}
+
+func (m *MockStompConnection) Init() {
+	m.messagesSent = make(chan MockStompMessage, 1000)
+}
 
 func (m *MockStompConnection) Send(headers stompngo.Headers, message string) (e error) {
 
@@ -33,8 +37,8 @@ func (m *MockStompConnection) Send(headers stompngo.Headers, message string) (e 
 	}
 
 	// save for later
-	sentMessage := MockStompMessage{ len(messagesSent), headers, message }
-	messagesSent <- sentMessage
+	sentMessage := MockStompMessage{len(m.messagesSent), headers, message}
+	m.messagesSent <- sentMessage
 
 	return e
 }
