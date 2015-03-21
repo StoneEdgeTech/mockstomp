@@ -59,14 +59,14 @@ func TestPopulator(t *testing.T) {
 			}
 
 			// should be messages in the chan
-			Expect(len(stompConnection.messagesSent)).To(Equal(1000))
+			Expect(len(stompConnection.MessagesSent)).To(Equal(1000))
 
 			// pop the messages off of the chan and verify
 			for i := 0; i < 1000; i++ {
-				msg := <-stompConnection.messagesSent
+				msg := <-stompConnection.MessagesSent
 				expectedMessage := &MockStompMessage{
-					order: i,
-					headers: []string{
+					Order: i,
+					Headers: []string{
 						"persistent",
 						"true",
 						"destination",
@@ -82,7 +82,7 @@ func TestPopulator(t *testing.T) {
 						"special_distribution",
 						"true",
 					},
-					message: "Foo Bar",
+					Message: "Foo Bar",
 				}
 
 				Expect(msg).To(Equal(*expectedMessage))

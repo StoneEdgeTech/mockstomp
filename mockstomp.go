@@ -14,17 +14,17 @@ import (
 )
 
 type MockStompMessage struct {
-	order   int
-	headers stompngo.Headers
-	message string
+	Order   int
+	Headers stompngo.Headers
+	Message string
 }
 
 type MockStompConnection struct {
-	messagesSent chan MockStompMessage
+	MessagesSent chan MockStompMessage
 }
 
 func (m *MockStompConnection) Init() {
-	m.messagesSent = make(chan MockStompMessage, 1000)
+	m.MessagesSent = make(chan MockStompMessage, 1000)
 }
 
 func (m *MockStompConnection) Send(headers stompngo.Headers, message string) (e error) {
@@ -37,8 +37,8 @@ func (m *MockStompConnection) Send(headers stompngo.Headers, message string) (e 
 	}
 
 	// save for later
-	sentMessage := MockStompMessage{len(m.messagesSent), headers, message}
-	m.messagesSent <- sentMessage
+	sentMessage := MockStompMessage{len(m.MessagesSent), headers, message}
+	m.MessagesSent <- sentMessage
 
 	return e
 }
