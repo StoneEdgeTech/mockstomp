@@ -23,11 +23,16 @@ type MockStompConnection struct {
 	MessagesSent chan MockStompMessage
 }
 
-func (m *MockStompConnection) Init() {
+func (m *MockStompConnection) Clear() {
 	m.MessagesSent = make(chan MockStompMessage, 1000)
 }
 
 func (m *MockStompConnection) Send(headers stompngo.Headers, message string) (e error) {
+
+	// initialize if chan not created yet:
+	if cap(m.MessagesSent) < 1000 {
+		m.MessagesSent = make(chan MockStompMessage, 1000)
+	}
 
 	// check for protocol
 
