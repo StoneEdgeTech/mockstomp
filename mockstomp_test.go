@@ -9,7 +9,7 @@ import (
 )
 
 func TestPopulator(t *testing.T) {
-	
+
 	g := Goblin(t)
 	RegisterFailHandler(func(m string, _ ...int) { g.Fail(m) })
 
@@ -20,6 +20,7 @@ func TestPopulator(t *testing.T) {
 		var message string
 
 		g.BeforeEach(func() {
+			stompConnection.Init()
 
 			// broker headers
 			headers = stompngo.Headers{
@@ -50,6 +51,42 @@ func TestPopulator(t *testing.T) {
 			headers = headers.Delete("destination")
 			Expect(stompConnection.Send(headers, message)).NotTo(BeNil())
 		})
-	})
 
+		g.It("should be able to get messages back afterwards", func() {
+			// expected behavior adding to chan
+			for i := 0; i < 1000; i++ {
+				Expect(stompConnection.Send(headers, message)).To(BeNil())
+			}
+
+			// should be messages in the chan
+			Expect(len(stompConnection.MessagesSent)).To(Equal(1000))
+
+			// pop the messages off of the chan and verify
+			for i := 0; i < 1000; i++ {
+				msg := <-stompConnection.MessagesSent
+				expectedMessage := &MockStompMessage{
+					Order: i,
+					Headers: []string{
+						"persistent",
+						"true",
+						"destination",
+						"/queue/dedupe",
+						"asin",
+						"b000159fau",
+						"market",
+						"us",
+						"condition",
+						"new",
+						"triggered-at",
+						"1252",
+						"special_distribution",
+						"true",
+					},
+					Message: "Foo Bar",
+				}
+
+				Expect(msg).To(Equal(*expectedMessage))
+			}
+		})
+	})
 }

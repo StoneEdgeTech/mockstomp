@@ -13,17 +13,37 @@ import (
 	"github.com/gmallard/stompngo"
 )
 
-type MockStompConnection struct{}
-
 type MockStompMessage struct {
-	order int
-	headers stompngo.Headers
-	message string
+	Order   int
+	Headers stompngo.Headers
+	Message string
 }
 
-var messagesSent = make(chan MockStompMessage, 1000)
+type MockStompConnection struct {
+	MessagesSent     chan MockStompMessage
+	DisconnectCalled bool
+}
+
+func (m *MockStompConnection) Clear() {
+	m.MessagesSent = make(chan MockStompMessage, 1000)
+	m.DisconnectCalled = false
+}
+
+func (m *MockStompConnection) Disconnect(stompngo.Headers) error {
+	m.DisconnectCalled = true
+	return nil
+}
+
+func (m MockStompConnection) Connected() bool {
+	return true
+}
 
 func (m *MockStompConnection) Send(headers stompngo.Headers, message string) (e error) {
+
+	// initialize if chan not created yet:
+	if cap(m.MessagesSent) < 1000 {
+		m.MessagesSent = make(chan MockStompMessage, 1000)
+	}
 
 	// check for protocol
 
@@ -33,8 +53,8 @@ func (m *MockStompConnection) Send(headers stompngo.Headers, message string) (e 
 	}
 
 	// save for later
-	sentMessage := MockStompMessage{ len(messagesSent), headers, message }
-	messagesSent <- sentMessage
+	sentMessage := MockStompMessage{len(m.MessagesSent), headers, message}
+	m.MessagesSent <- sentMessage
 
 	return e
 }
