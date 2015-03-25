@@ -20,11 +20,22 @@ type MockStompMessage struct {
 }
 
 type MockStompConnection struct {
-	MessagesSent chan MockStompMessage
+	MessagesSent     chan MockStompMessage
+	DisconnectCalled bool
 }
 
 func (m *MockStompConnection) Clear() {
 	m.MessagesSent = make(chan MockStompMessage, 1000)
+	m.DisconnectCalled = false
+}
+
+func (m *MockStompConnection) Disconnect(stompngo.Headers) error {
+	m.DisconnectCalled = true
+	return nil
+}
+
+func (m MockStompConnection) Connected() bool {
+	return true
 }
 
 func (m *MockStompConnection) Send(headers stompngo.Headers, message string) (e error) {
