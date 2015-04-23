@@ -20,8 +20,7 @@ func TestPopulator(t *testing.T) {
 		var message string
 
 		g.BeforeEach(func() {
-			stompConnection.Init()
-
+			stompConnection.MessagesSent = make(chan MockStompMessage, 1000)
 			// broker headers
 			headers = stompngo.Headers{
 				"accept-version", "1.1",
