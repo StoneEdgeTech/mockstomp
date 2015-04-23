@@ -3,7 +3,7 @@ package mockstomp
 import (
 	//"fmt"
 	. "github.com/franela/goblin"
-	"github.com/gmallard/stompngo"
+	"github.com/maxgarvey/stompngo"
 	. "github.com/onsi/gomega"
 	"testing"
 )

@@ -10,7 +10,7 @@ package mockstomp
 
 import (
 	"fmt"
-	"github.com/gmallard/stompngo"
+	"github.com/maxgarvey/stompngo"
 )
 
 type MockStompMessage struct {
