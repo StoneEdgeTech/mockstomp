@@ -20,7 +20,7 @@ func TestPopulator(t *testing.T) {
 		var message string
 
 		g.BeforeEach(func() {
-			stompConnection.Init()
+			stompConnection.Clear()
 
 			// broker headers
 			headers = stompngo.Headers{
