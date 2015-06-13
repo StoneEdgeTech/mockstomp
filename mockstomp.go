@@ -20,12 +20,12 @@ type MockStompMessage struct {
 }
 
 type MockStompConnection struct {
-	MessagesSent     chan MockStompMessage
+	Messages         chan MockStompMessage
 	DisconnectCalled bool
 }
 
 func (m *MockStompConnection) Clear() {
-	m.MessagesSent = make(chan MockStompMessage, 1000)
+	m.Messages = make(chan MockStompMessage, 1000)
 	m.DisconnectCalled = false
 }
 
@@ -53,8 +53,8 @@ func (m *MockStompConnection) Send(headers stompngo.Headers, message string) (e 
 	}
 
 	// save for later
-	sentMessage := MockStompMessage{len(m.MessagesSent), headers, message}
-	m.MessagesSent <- sentMessage
+	msg := MockStompMessage{len(m.Messages), headers, message}
+	m.Messages <- msg
 
 	return e
 }

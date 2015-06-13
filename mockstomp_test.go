@@ -58,11 +58,11 @@ func TestPopulator(t *testing.T) {
 			}
 
 			// should be messages in the chan
-			Expect(len(stompConnection.MessagesSent)).To(Equal(1000))
+			Expect(len(stompConnection.Messages)).To(Equal(1000))
 
 			// pop the messages off of the chan and verify
 			for i := 0; i < 1000; i++ {
-				msg := <-stompConnection.MessagesSent
+				msg := <-stompConnection.Messages
 				expectedMessage := &MockStompMessage{
 					Order: i,
 					Headers: []string{
