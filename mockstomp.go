@@ -21,6 +21,7 @@ type MockStompMessage struct {
 
 type MockStompConnection struct {
 	Messages         chan MockStompMessage
+	NumMessages      int
 	DisconnectCalled bool
 }
 
@@ -38,13 +39,13 @@ func (m MockStompConnection) Connected() bool {
 	return true
 }
 
-func (m *MockStompConnection) Send(headers stompngo.Headers, message string) (e error) {
 
 	// initialize if chan not created yet:
 	if cap(m.MessagesSent) < 1000 {
 		m.MessagesSent = make(chan MockStompMessage, 1000)
 	}
 
+func (m *MockStompConnection) Send(headers stompngo.Headers, message string) error {
 	// check for protocol
 
 	// check for destination header
@@ -56,5 +57,8 @@ func (m *MockStompConnection) Send(headers stompngo.Headers, message string) (e 
 	msg := MockStompMessage{len(m.Messages), headers, message}
 	m.Messages <- msg
 
-	return e
+	m.NumMessages++
+
+	return nil
+}
 }
