@@ -15,7 +15,7 @@ func TestPopulator(t *testing.T) {
 	g.Describe("stomp connection mock", func() {
 
 		var headers stompngo.Headers
-		var stompConnection = &MockStompConnection{}
+		var stompConnection = New()
 		var message string
 
 		g.BeforeEach(func() {
@@ -58,11 +58,11 @@ func TestPopulator(t *testing.T) {
 			}
 
 			// should be messages in the chan
-			Expect(len(stompConnection.MessagesSent)).To(Equal(1000))
+			Expect(len(stompConnection.Messages)).To(Equal(1000))
 
 			// pop the messages off of the chan and verify
 			for i := 0; i < 1000; i++ {
-				msg := <-stompConnection.MessagesSent
+				msg := <-stompConnection.Messages
 				expectedMessage := &MockStompMessage{
 					Order: i,
 					Headers: []string{
@@ -86,6 +86,35 @@ func TestPopulator(t *testing.T) {
 
 				Expect(msg).To(Equal(*expectedMessage))
 			}
+		})
+
+		g.It("should allow for a disconnect request", func() {
+			err := stompConnection.Disconnect(stompngo.Headers{})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(stompConnection.DisconnectCalled).To(BeTrue())
+		})
+
+		g.It("should allow a subscription", func() {
+			sub, err := stompConnection.Subscribe(stompngo.Headers{})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(stompConnection.Subscription).ToNot(BeNil())
+			Expect(sub).To(Equal(stompConnection.Subscription))
+
+			msg := stompngo.MessageData{
+				Message: stompngo.Message{
+					Body: []uint8(message),
+				},
+			}
+			stompConnection.PutToSubscribe(msg)
+			outMsg := <-sub
+			Expect(outMsg.Message.BodyString()).To(Equal(message))
+			Expect(string(outMsg.Message.Body)).To(Equal(message))
+		})
+
+		g.It("should allow an unsubscribe", func() {
+			err := stompConnection.Unsubscribe(stompngo.Headers{})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(stompConnection.Subscription).To(BeNil())
 		})
 	})
 }
