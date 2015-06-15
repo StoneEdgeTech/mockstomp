@@ -15,7 +15,7 @@ func TestPopulator(t *testing.T) {
 	g.Describe("stomp connection mock", func() {
 
 		var headers stompngo.Headers
-		var stompConnection = &MockStompConnection{}
+		var stompConnection = New()
 		var message string
 
 		g.BeforeEach(func() {
@@ -86,6 +86,35 @@ func TestPopulator(t *testing.T) {
 
 				Expect(msg).To(Equal(*expectedMessage))
 			}
+		})
+
+		g.It("should allow for a disconnect request", func() {
+			err := stompConnection.Disconnect(stompngo.Headers{})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(stompConnection.DisconnectCalled).To(BeTrue())
+		})
+
+		g.It("should allow a subscription", func() {
+			sub, err := stompConnection.Subscribe(stompngo.Headers{})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(stompConnection.Subscription).ToNot(BeNil())
+			Expect(sub).To(Equal(stompConnection.Subscription))
+
+			msg := stompngo.MessageData{
+				Message: stompngo.Message{
+					Body: []uint8(message),
+				},
+			}
+			stompConnection.PutToSubscribe(msg)
+			outMsg := <-sub
+			Expect(outMsg.Message.BodyString()).To(Equal(message))
+			Expect(string(outMsg.Message.Body)).To(Equal(message))
+		})
+
+		g.It("should allow an unsubscribe", func() {
+			err := stompConnection.Unsubscribe(stompngo.Headers{})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(stompConnection.Subscription).To(BeNil())
 		})
 	})
 }
