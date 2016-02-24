@@ -38,7 +38,7 @@ In the tests
 ```go
 import (
 	"github.com/gmallard/stompngo"
-	"github.com/monsooncommerce/mockStomp"
+	"github.com/stoneedgetech/mockstomp"
 )
 
 func TestStompFunctionality(t *testing.T){
